@@ -18,34 +18,39 @@ public class LoginController {
 
 	@Autowired
 	private UserDao userDao;
-	
+
 	@GetMapping
 	public String landingPage() {
 		return "login";
 	}
-	
+
+	@GetMapping("/signup")
+	public String register() {
+		return "signup";
+	}
+
 	@PostMapping
 	public String login(User user, HttpSession httpSession) throws Exception {
-	
+
 		// authorize user
 		User loggedInUser = userDao.authenticate(user);
-		
+
 		// store authorized user in session
 		httpSession.setAttribute("username", loggedInUser.getFirstName());
 		httpSession.setAttribute("loggedInUser", loggedInUser);
 		httpSession.setAttribute("role", loggedInUser.getRole());
-		
+
 		RoleType role = loggedInUser.getRole();
-		
+
 		if (role.equals(RoleType.Admin)) {
 			return "homepage";
 		} else if (role.equals(RoleType.Librarian)) {
-			return "librarian-dashboard";			
-		} else  {
+			return "librarian-dashboard";
+		} else {
 			return "student-dashboard";
 		}
 	}
-	
+
 	@GetMapping("/logout")
 	public String logout(HttpSession httpSession) {
 		httpSession.invalidate();

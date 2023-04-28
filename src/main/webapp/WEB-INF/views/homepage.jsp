@@ -336,7 +336,7 @@ body {
 			isbnInput.disabled = true;
 
 			alert(document.getElementById('isbn'));
-			
+
 			//  $('#isbn').val(book.isbn);
 			/*  $('#isbn').prop('disabled', true); */
 			document.getElementById('isbn').value = book;

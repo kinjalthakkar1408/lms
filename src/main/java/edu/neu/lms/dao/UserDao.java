@@ -1,5 +1,6 @@
 package edu.neu.lms.dao;
 
+import java.util.Base64;
 import java.util.List;
 
 import org.hibernate.HibernateException;
@@ -40,6 +41,8 @@ public class UserDao extends DAO {
 
 			// save user object in the database
 			begin();
+			byte[] bytes = user.getPassword().getBytes();
+			((User) user).setPassword(new String(Base64.getEncoder().encode(bytes)));
 			getSession().save(user);
 			commit();
 			close();
@@ -104,18 +107,26 @@ public class UserDao extends DAO {
 		try {
 			// Fetch user object from the database based on username and password
 			begin();
-			Query q = getSession().createQuery("from User where username = :username and password = :password");
+
+			Query q = getSession().createQuery("from User where username = :username");
 			q.setString("username", user.getUsername());
-			q.setString("password", user.getPassword());
+			// q.setString("password", user.getPassword());
 			User found = (User) q.uniqueResult();
 			close();
-			
+
+			if (found != null) {
+
+				if (new String(Base64.getDecoder().decode(found.getPassword())).equals(user.getPassword()))
+					return found;
+
+			}
+
 			// Get the enum values from the database and set them in the User object
 			Gender gender = Gender.valueOf(found.getGender().toString());
 			RoleType role = RoleType.valueOf(found.getRole().toString());
 			found.setGender(gender);
 			found.setRole(role);
-			
+
 			return found;
 		} catch (HibernateException e) {
 			rollback();
