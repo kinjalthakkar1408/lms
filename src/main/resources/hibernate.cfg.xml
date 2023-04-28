@@ -5,8 +5,8 @@
 
 		<property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
 		<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/librarydb?createDatabaseIfNotExist=true</property>
-		<property name="hibernate.connection.username">root</property>		
-		<property name="hibernate.connection.password">root1234</property>
+		<property name="hibernate.connection.username">root</property>
+		<property name="hibernate.connection.password">root</property>
 		<property name="dialect">org.hibernate.dialect.MySQL8Dialect</property>
 		<!-- Enable Hibernate's automatic session context management -->
 		<property name="current_session_context_class">thread</property>
@@ -14,19 +14,19 @@
 		<property name="show_sql">true</property>
 
 		<property name="hibernate.hbm2ddl.auto">update</property>
-		
+
 		<property name="format_sql">true</property>
 		<property name="use_sql_comments">true</property>
 
 		<mapping class="edu.neu.lms.model.User" />
 		<mapping class="edu.neu.lms.model.Author" />
-		<mapping class="edu.neu.lms.model.Publisher" /> 
- 		<mapping class="edu.neu.lms.model.Category" />
+		<mapping class="edu.neu.lms.model.Publisher" />
+		<mapping class="edu.neu.lms.model.Category" />
 		<mapping class="edu.neu.lms.model.Book" />
 		<mapping class="edu.neu.lms.model.Student" />
 		<mapping class="edu.neu.lms.model.Issuance" />
 		<mapping class="edu.neu.lms.model.Library" />
-		
+
 
 	</session-factory>
 </hibernate-configuration>

@@ -41,13 +41,13 @@ public class HomeController {
 
 	@Autowired
 	private BookDao bookDao;
-	
+
 	@Autowired
 	private StudentDao studentDao;
-	
+
 	@Autowired
 	private IssuanceDao issuanceDao;
-	
+
 	@Autowired
 	private LibraryDao libraryDao;
 
@@ -86,16 +86,15 @@ public class HomeController {
 
 	@GetMapping
 	public String bookDetails(HttpSession httpSession) throws NotFoundException {
-	
 		return "homepage";
 	}
-	
+
 	@GetMapping("/bookListAvailable")
 	public String bookDetailsForStudent(HttpSession httpSession) throws NotFoundException {
 
 		return "books-student-page";
 	}
-	
+
 	@DeleteMapping("/deleteBook/{id}")
 	public String deleteAuthor(@PathVariable("id") int id) {
 		try {
@@ -108,16 +107,17 @@ public class HomeController {
 			return "Book not found";
 		}
 	}
-	
+
 	@PutMapping("/update/{bookId}")
-	public ResponseEntity<String> updateBook(@PathVariable("bookId") String bookId,@RequestBody Book book) throws NumberFormatException, NotFoundException {
+	public ResponseEntity<String> updateBook(@PathVariable("bookId") String bookId, @RequestBody Book book)
+			throws NumberFormatException, NotFoundException {
 		// Check if book with given bookId exists
 		Book existingBook = bookDao.get(Long.parseLong(bookId));
-		
+
 		if (existingBook == null) {
 			throw new NotFoundException("book not found with ID: " + bookId);
 		}
-		
+
 		existingBook.setBookName(book.getBookName());
 //		existingBook.setIsbn(book.getIsbn());
 		existingBook.setDescription(book.getDescription());
@@ -128,10 +128,10 @@ public class HomeController {
 //		existingBook.setAvailability(book.isAvailability());
 		existingBook.setNoOfcopies(book.getNoOfcopies());
 		bookDao.update(existingBook);
-		
+
 		return new ResponseEntity<String>("book updated", HttpStatusCode.valueOf(204));
 	}
-	
+
 	@GetMapping("/{bookId}")
 	public ResponseEntity<Book> getBookById(@PathVariable("bookId") String bookId)
 			throws NumberFormatException, NotFoundException {
@@ -149,47 +149,48 @@ public class HomeController {
 		httpSession.invalidate();
 		return "redirect:/login";
 	}
-	
+
 	@PostMapping("/students/{studentId}/issuances")
-	public ResponseEntity<Issuance> processIssuance(@PathVariable long studentId,@RequestBody Issuance issuance) throws NotFoundException {
-		
+	public ResponseEntity<Issuance> processIssuance(@PathVariable long studentId, @RequestBody Issuance issuance)
+			throws NotFoundException {
+
 		// fetch student
 		Student student = studentDao.get(studentId);
-		
+
 		// fetch book
 		Book book = bookDao.get(issuance.getBook().getId());
 
-	    // check if book is available
-	    if (book.getNoOfcopies() <= 0 || !book.isAvailability()) {
-	        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-	    }
-	    // update issuance with correct values
-	    issuance.setBook(book);
-	    issuance.setStudent(student);
+		// check if book is available
+		if (book.getNoOfcopies() <= 0 || !book.isAvailability()) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		// update issuance with correct values
+		issuance.setBook(book);
+		issuance.setStudent(student);
 
-	    // decrease the number of copies
-	    book.setNoOfcopies(book.getNoOfcopies() - 1);
+		// decrease the number of copies
+		book.setNoOfcopies(book.getNoOfcopies() - 1);
 
-	    // if there are no more copies, update availability
-	    if (book.getNoOfcopies() == 0) {
-	        book.setAvailability(false);
-	    }
-	   
-	    // send created issuance to librarian
-	    issuanceDao.create(issuance);
-	    bookDao.update(book);
-	    
-	   // libraryDao.addIssuance(issuance);
-		
-	    return new ResponseEntity<>(issuance, HttpStatus.CREATED);
+		// if there are no more copies, update availability
+		if (book.getNoOfcopies() == 0) {
+			book.setAvailability(false);
+		}
+
+		// send created issuance to librarian
+		issuanceDao.create(issuance);
+		bookDao.update(book);
+
+		// libraryDao.addIssuance(issuance);
+
+		return new ResponseEntity<>(issuance, HttpStatus.CREATED);
 	}
-	
+
 //	@GetMapping("/students/{studentId}/getIssuances")
 //	public ResponseEntity<Set<Issuance>> getIssuancesByStudent(@PathVariable long studentId) throws NotFoundException {
 //	    Set<Issuance> issuances = issuanceDao.getIssuancesByStudent(studentId);
 //	    return new ResponseEntity<>(issuances, HttpStatus.OK);
 //	}
-	
+
 //	@GetMapping("/students/getIssuances")
 //	public ResponseEntity<List<Issuance>> getIssuancesForCurrentUser( HttpSession httpSession) throws NotFoundException {
 //		// authorize user
@@ -204,22 +205,20 @@ public class HomeController {
 //	    
 //	    return new ResponseEntity<>(issuances, HttpStatus.OK);
 //	}
-	
+
 	@GetMapping("/students/getIssuances")
 	public String getIssuancesForCurrentUser(Model model, HttpSession httpSession) throws NotFoundException {
-	    // Get the user ID from the session
-	    Long userId = (Long) httpSession.getAttribute("logedInUserId");
-	    
-	    // Retrieve the issuances for the current user ID
-	    List<Issuance> issuances = issuanceDao.getIssuancesForUser(userId);
-	    
-	    // Add the issuances list as an attribute to the model
-	    model.addAttribute("issuances", issuances);
-	    
-	    // Return the name of the JSP file as a string
-	    return "student-issuance";
+		// Get the user ID from the session
+		Long userId = (Long) httpSession.getAttribute("logedInUserId");
+
+		// Retrieve the issuances for the current user ID
+		List<Issuance> issuances = issuanceDao.getIssuancesForUser(userId);
+
+		// Add the issuances list as an attribute to the model
+		model.addAttribute("issuances", issuances);
+
+		// Return the name of the JSP file as a string
+		return "student-issuance";
 	}
-
-
 
 }
